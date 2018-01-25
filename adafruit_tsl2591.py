@@ -28,8 +28,6 @@ examples/simpletest.py for a demo of the usage.
 
 * Author(s): Tony DiCola
 """
-import time
-
 from micropython import const
 
 import adafruit_bus_device.i2c_device as i2c_device
@@ -96,9 +94,8 @@ class TSL2591:
         # Set default gain and integration times.
         self.gain = GAIN_MED
         self.integration_time = INTEGRATIONTIME_100MS
-        # Put the device in a disabled state after initialization.
-        # Future calls will enable and disable as necessary.
-        self.disable()
+        # Put the device in a powered on state after initialization.
+        self.enable()
 
     def _read_u8(self, address):
         # Read an 8-bit unsigned value from the specified 8-bit address.
@@ -149,24 +146,19 @@ class TSL2591:
         - GAIN_HIGH (428x)
         - GAIN_MAX (9876x)
         """
-        self.enable()
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
-        self.disable()
         return control & 0b00110000
 
     @gain.setter
     def gain(self, val):
         assert val in (GAIN_LOW, GAIN_MED, GAIN_HIGH, GAIN_MAX)
-        # Enable chip, set appropriate gain value.
-        self.enable()
+        # Set appropriate gain value.
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
         control &= 0b11001111
         control |= val
         self._write_u8(_TSL2591_REGISTER_CONTROL, control)
         # Keep track of gain for future lux calculations.
         self._gain = val
-        # Go back to low power mode.
-        self.disable()
 
     @property
     def integration_time(self):
@@ -178,24 +170,19 @@ class TSL2591:
         - INTEGRATIONTIME_500MS (500 millis)
         - INTEGRATIONTIME_600MS (600 millis)
         """
-        self.enable()
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
-        self.disable()
         return control & 0b00000111
 
     @integration_time.setter
     def integration_time(self, val):
         assert 0 <= val <= 5
-        # Enable chip, set control bits appropriately.
-        self.enable()
+        # Set control bits appropriately.
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
         control &= 0b11111000
         control |= val
         self._write_u8(_TSL2591_REGISTER_CONTROL, control)
         # Keep track of integration time for future reading delay times.
         self._integration_time = val
-        # Go back to low power mode.
-        self.disable()
 
     @property
     def raw_luminosity(self):
@@ -204,14 +191,9 @@ class TSL2591:
         is IR + visible luminosity (channel 0) and the second is the IR only
         (channel 1).  Both values are 16-bit unsigned numbers (0-65535).
         """
-        # Enable then wait for the integration time to pass.
-        self.enable()
-        time.sleep(120.0 * self._integration_time / 1000.0)
-        # Now read both the luminosity channels.
+        # Read both the luminosity channels.
         channel_0 = self._read_u16LE(_TSL2591_REGISTER_CHAN0_LOW)
         channel_1 = self._read_u16LE(_TSL2591_REGISTER_CHAN1_LOW)
-        # Go back to low power mode and return result.
-        self.disable()
         return (channel_0, channel_1)
 
     @property
@@ -231,7 +213,7 @@ class TSL2591:
 
     @property
     def visible(self):
-        """Read the visible light and return its value as a 16-bit unsigned number.
+        """Read the visible light and return its value as a 32-bit unsigned number.
         """
         channel_0, channel_1 = self.raw_luminosity
         full = (channel_1 << 16) | channel_0
