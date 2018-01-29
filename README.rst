@@ -3,14 +3,16 @@ Introduction
 ============
 
 .. image:: https://readthedocs.org/projects/adafruit-circuitpython-tsl2591/badge/?version=latest
-
     :target: https://circuitpython.readthedocs.io/projects/tsl2591/en/latest/
-
     :alt: Documentation Status
 
 .. image :: https://img.shields.io/discord/327254708534116352.svg
     :target: https://discord.gg/nBQh6qu
     :alt: Discord
+
+.. image:: https://travis-ci.org/adafruit/Adafruit_CircuitPython_TSL2591.svg?branch=master
+    :target: https://travis-ci.org/adafruit/Adafruit_CircuitPython_TSL2591
+    :alt: Build Status
 
 CircuitPython module for the TSL2591 high precision light sensor.
 

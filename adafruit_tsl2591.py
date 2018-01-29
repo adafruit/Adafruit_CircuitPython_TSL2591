@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`Adafruit_TSL2591`
+`adafruit_tsl2591`
 ====================================================
 
 CircuitPython module for the TSL2591 precision light sensor.  See
@@ -39,7 +39,7 @@ __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_TSL2591.git"
 
 #pylint: disable=bad-whitespace
 # Internal constants:
-_TSL2591_ADDR                = const(0x29)
+_TSL2591_ADDR                = 0x29
 _TSL2591_COMMAND_BIT         = const(0xA0)
 _TSL2591_ENABLE_POWEROFF     = const(0x00)
 _TSL2591_ENABLE_POWERON      = const(0x01)
@@ -57,27 +57,34 @@ _TSL2591_LUX_COEFC           = 0.59
 _TSL2591_LUX_COEFD           = 0.86
 
 # User-facing constants:
-GAIN_LOW                  = 0x00  # low gain (1x)
-GAIN_MED                  = 0x10  # medium gain (25x)
-GAIN_HIGH                 = 0x20  # medium gain (428x)
-GAIN_MAX                  = 0x30  # max gain (9876x)
-INTEGRATIONTIME_100MS     = 0x00  # 100 millis
-INTEGRATIONTIME_200MS     = 0x01  # 200 millis
-INTEGRATIONTIME_300MS     = 0x02  # 300 millis
-INTEGRATIONTIME_400MS     = 0x03  # 400 millis
-INTEGRATIONTIME_500MS     = 0x04  # 500 millis
-INTEGRATIONTIME_600MS     = 0x05  # 600 millis
+GAIN_LOW              = 0x00
+"""Low gain (1x)"""
+GAIN_MED              = 0x10
+"""Medium gain (25x)"""
+GAIN_HIGH             = 0x20
+"""High gain (428x)"""
+GAIN_MAX              = 0x30
+"""Max gain (9876x)"""
+INTEGRATIONTIME_100MS = 0x00
+"""100 millis"""
+INTEGRATIONTIME_200MS = 0x01
+"""200 millis"""
+INTEGRATIONTIME_300MS = 0x02
+"""300 millis"""
+INTEGRATIONTIME_400MS = 0x03
+"""400 millis"""
+INTEGRATIONTIME_500MS = 0x04
+"""500 millis"""
+INTEGRATIONTIME_600MS = 0x05
+"""600 millis"""
 #pylint: enable=bad-whitespace
 
 
 class TSL2591:
-    """Create an instance of the TSL2591 high precision light sensor.  Must
-    specify:
-    - i2c: The I2C bus connected to the sensor.
+    """TSL2591 high precision light sensor.
 
-    Can optionally specify:
-    - address: The I2C address of the sensor.  If not specified the sensor
-               default will be used.
+       :param busio.I2C i2c: The I2C bus connected to the sensor
+       :param int address: The I2C address of the sensor.  If not specified the sensor default will be used.
     """
 
     # Class-level buffer to reduce memory usage and allocations.
@@ -140,11 +147,12 @@ class TSL2591:
 
     @property
     def gain(self):
-        """Get and set the gain of the sensor.  Can be a value of:
-        - GAIN_LOW (1x)
-        - GAIN_MED (25x)
-        - GAIN_HIGH (428x)
-        - GAIN_MAX (9876x)
+        """The gain of the sensor.  Can be a value of:
+        
+        - `GAIN_LOW` (1x)
+        - `GAIN_MED` (25x)
+        - `GAIN_HIGH` (428x)
+        - `GAIN_MAX` (9876x)
         """
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
         return control & 0b00110000
@@ -162,13 +170,14 @@ class TSL2591:
 
     @property
     def integration_time(self):
-        """Get and set the integration time of the sensor.  Can be a value of:
-        - INTEGRATIONTIME_100MS (100 millis)
-        - INTEGRATIONTIME_200MS (200 millis)
-        - INTEGRATIONTIME_300MS (300 millis)
-        - INTEGRATIONTIME_400MS (400 millis)
-        - INTEGRATIONTIME_500MS (500 millis)
-        - INTEGRATIONTIME_600MS (600 millis)
+        """The integration time of the sensor.  Can be a value of:
+
+        - `INTEGRATIONTIME_100MS` (100 millis)
+        - `INTEGRATIONTIME_200MS` (200 millis)
+        - `INTEGRATIONTIME_300MS` (300 millis)
+        - `INTEGRATIONTIME_400MS` (400 millis)
+        - `INTEGRATIONTIME_500MS` (500 millis)
+        - `INTEGRATIONTIME_600MS` (600 millis)
         """
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
         return control & 0b00000111
@@ -186,7 +195,7 @@ class TSL2591:
 
     @property
     def raw_luminosity(self):
-        """Read the raw luminosity from the sensor (both IR + visible and IR
+        """The raw luminosity from the sensor (both IR + visible and IR
         only channels) and return a 2-tuple of those values.  The first value
         is IR + visible luminosity (channel 0) and the second is the IR only
         (channel 1).  Both values are 16-bit unsigned numbers (0-65535).
@@ -198,7 +207,7 @@ class TSL2591:
 
     @property
     def full_spectrum(self):
-        """Read the full spectrum (IR + visible) light and return its value
+        """The full spectrum (IR + visible) light and return its value
         as a 32-bit unsigned number.
         """
         channel_0, channel_1 = self.raw_luminosity
@@ -206,14 +215,14 @@ class TSL2591:
 
     @property
     def infrared(self):
-        """Read the infrared light and return its value as a 16-bit unsigned number.
+        """The infrared light and return its value as a 16-bit unsigned number.
         """
         _, channel_1 = self.raw_luminosity
         return channel_1
 
     @property
     def visible(self):
-        """Read the visible light and return its value as a 32-bit unsigned number.
+        """The visible light and return its value as a 32-bit unsigned number.
         """
         channel_0, channel_1 = self.raw_luminosity
         full = (channel_1 << 16) | channel_0
@@ -221,8 +230,8 @@ class TSL2591:
 
     @property
     def lux(self):
-        """Read the sensor and calculate a lux value from both its infrared
-        and visible light channels.
+        """The sensor and calculate a lux value from both its infrared and visible light
+           channels.
         """
         channel_0, channel_1 = self.raw_luminosity
         # Handle overflow.
