@@ -84,8 +84,8 @@ class TSL2591:
     """TSL2591 high precision light sensor.
 
        :param busio.I2C i2c: The I2C bus connected to the sensor
-       :param int address: The I2C address of the sensor. If not specified the sensor default will be
-           used.
+       :param int address: The I2C address of the sensor. If not specified the sensor default will
+           be used.
     """
 
     # Class-level buffer to reduce memory usage and allocations.
