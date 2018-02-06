@@ -226,7 +226,7 @@ class TSL2591:
         return full - channel_1
 
     @property
-    def lux(self):
+    def light(self):
         """The visible light as a lux value."""
         channel_0, channel_1 = self.raw_luminosity
         # Handle overflow.
@@ -246,3 +246,8 @@ class TSL2591:
         lux1 = (channel_0 - (_TSL2591_LUX_COEFB * channel_1)) / cpl
         lux2 = ((_TSL2591_LUX_COEFC * channel_0) - (_TSL2591_LUX_COEFD * channel_1)) / cpl
         return max(lux1, lux2)
+
+    @property
+    def lux(self):
+        """The visible light as a lux value."""
+        return self.light
