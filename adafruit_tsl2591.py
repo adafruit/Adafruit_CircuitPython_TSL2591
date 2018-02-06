@@ -171,6 +171,7 @@ class TSL2591:
     @property
     def integration_time(self):
         """Get and set the integration time of the sensor.  Can be a value of:
+
         - `INTEGRATIONTIME_100MS` (100 millis)
         - `INTEGRATIONTIME_200MS` (200 millis)
         - `INTEGRATIONTIME_300MS` (300 millis)
