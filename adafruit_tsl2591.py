@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
-`Adafruit_TSL2591`
+`adafruit_tsl2591`
 ====================================================
 
 CircuitPython module for the TSL2591 precision light sensor.  See
@@ -58,26 +58,33 @@ _TSL2591_LUX_COEFD           = 0.86
 
 # User-facing constants:
 GAIN_LOW                  = 0x00  # low gain (1x)
+"""Low gain (1x)"""
 GAIN_MED                  = 0x10  # medium gain (25x)
+"""Medium gain (25x)"""
 GAIN_HIGH                 = 0x20  # medium gain (428x)
+"""High gain (428x)"""
 GAIN_MAX                  = 0x30  # max gain (9876x)
+"""Max gain (9876x)"""
 INTEGRATIONTIME_100MS     = 0x00  # 100 millis
+"""100 millis"""
 INTEGRATIONTIME_200MS     = 0x01  # 200 millis
+"""200 millis"""
 INTEGRATIONTIME_300MS     = 0x02  # 300 millis
+"""300 millis"""
 INTEGRATIONTIME_400MS     = 0x03  # 400 millis
+"""400 millis"""
 INTEGRATIONTIME_500MS     = 0x04  # 500 millis
+"""500 millis"""
 INTEGRATIONTIME_600MS     = 0x05  # 600 millis
+"""600 millis"""
 #pylint: enable=bad-whitespace
 
 
 class TSL2591:
-    """Create an instance of the TSL2591 high precision light sensor.  Must
-    specify:
-    - i2c: The I2C bus connected to the sensor.
-
-    Can optionally specify:
-    - address: The I2C address of the sensor.  If not specified the sensor
-               default will be used.
+    """TSL2591 high precision light sensor.
+        :param busio.I2C i2c: The I2C bus connected to the sensor
+        :param int address: The I2C address of the sensor.  If not specified
+        the sensor default will be used.
     """
 
     # Class-level buffer to reduce memory usage and allocations.
@@ -141,10 +148,11 @@ class TSL2591:
     @property
     def gain(self):
         """Get and set the gain of the sensor.  Can be a value of:
-        - GAIN_LOW (1x)
-        - GAIN_MED (25x)
-        - GAIN_HIGH (428x)
-        - GAIN_MAX (9876x)
+
+        - `GAIN_LOW` (1x)
+        - `GAIN_MED` (25x)
+        - `GAIN_HIGH` (428x)
+        - `GAIN_MAX` (9876x)
         """
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
         return control & 0b00110000
@@ -163,12 +171,12 @@ class TSL2591:
     @property
     def integration_time(self):
         """Get and set the integration time of the sensor.  Can be a value of:
-        - INTEGRATIONTIME_100MS (100 millis)
-        - INTEGRATIONTIME_200MS (200 millis)
-        - INTEGRATIONTIME_300MS (300 millis)
-        - INTEGRATIONTIME_400MS (400 millis)
-        - INTEGRATIONTIME_500MS (500 millis)
-        - INTEGRATIONTIME_600MS (600 millis)
+        - `INTEGRATIONTIME_100MS` (100 millis)
+        - `INTEGRATIONTIME_200MS` (200 millis)
+        - `INTEGRATIONTIME_300MS` (300 millis)
+        - `INTEGRATIONTIME_400MS` (400 millis)
+        - `INTEGRATIONTIME_500MS` (500 millis)
+        - `INTEGRATIONTIME_600MS` (600 millis)
         """
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
         return control & 0b00000111
