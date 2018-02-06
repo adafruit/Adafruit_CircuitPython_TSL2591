@@ -208,32 +208,26 @@ class TSL2591:
 
     @property
     def full_spectrum(self):
-        """The full spectrum (IR + visible) light and return its value
-        as a 32-bit unsigned number.
-        """
+        """The full spectrum (IR + visible) light as a 32-bit unsigned number."""
         channel_0, channel_1 = self.raw_luminosity
         return (channel_1 << 16) | channel_0
 
     @property
     def infrared(self):
-        """The infrared light and return its value as a 16-bit unsigned number.
-        """
+        """The infrared light as a 16-bit unsigned number."""
         _, channel_1 = self.raw_luminosity
         return channel_1
 
     @property
     def visible(self):
-        """The visible light and return its value as a 32-bit unsigned number.
-        """
+        """The visible light as a 32-bit unsigned number."""
         channel_0, channel_1 = self.raw_luminosity
         full = (channel_1 << 16) | channel_0
         return full - channel_1
 
     @property
     def lux(self):
-        """The sensor and calculate a lux value from both its infrared and visible light
-           channels.
-        """
+        """The visible light as a lux value."""
         channel_0, channel_1 = self.raw_luminosity
         # Handle overflow.
         if channel_0 == 0xFFFF or channel_1 == 0xFFFF:
