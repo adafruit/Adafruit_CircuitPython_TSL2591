@@ -27,6 +27,20 @@ CircuitPython module for the TSL2591 precision light sensor.  See
 examples/simpletest.py for a demo of the usage.
 
 * Author(s): Tony DiCola
+
+Implementation Notes
+--------------------
+
+**Hardware:**
+
+* Adafruit `TSL2591 High Dynamic Range Digital Light Sensor
+  <https://www.adafruit.com/product/1980>`_ (Product ID: 1980)
+
+**Software and Dependencies:**
+
+* Adafruit CircuitPython firmware for the ESP8622 and M0-based boards:
+  https://github.com/adafruit/circuitpython/releases
+* Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 from micropython import const
 
@@ -149,10 +163,10 @@ class TSL2591:
     def gain(self):
         """Get and set the gain of the sensor.  Can be a value of:
 
-        - `GAIN_LOW` (1x)
-        - `GAIN_MED` (25x)
-        - `GAIN_HIGH` (428x)
-        - `GAIN_MAX` (9876x)
+        - ``GAIN_LOW`` (1x)
+        - ``GAIN_MED`` (25x)
+        - ``GAIN_HIGH`` (428x)
+        - ``GAIN_MAX`` (9876x)
         """
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
         return control & 0b00110000
@@ -172,12 +186,12 @@ class TSL2591:
     def integration_time(self):
         """Get and set the integration time of the sensor.  Can be a value of:
 
-        - `INTEGRATIONTIME_100MS` (100 millis)
-        - `INTEGRATIONTIME_200MS` (200 millis)
-        - `INTEGRATIONTIME_300MS` (300 millis)
-        - `INTEGRATIONTIME_400MS` (400 millis)
-        - `INTEGRATIONTIME_500MS` (500 millis)
-        - `INTEGRATIONTIME_600MS` (600 millis)
+        - ``INTEGRATIONTIME_100MS`` (100 millis)
+        - ``INTEGRATIONTIME_200MS`` (200 millis)
+        - ``INTEGRATIONTIME_300MS`` (300 millis)
+        - ``INTEGRATIONTIME_400MS`` (400 millis)
+        - ``INTEGRATIONTIME_500MS`` (500 millis)
+        - ``INTEGRATIONTIME_600MS`` (600 millis)
         """
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
         return control & 0b00000111
