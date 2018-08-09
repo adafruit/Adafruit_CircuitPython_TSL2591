@@ -69,6 +69,8 @@ _TSL2591_LUX_DF              = 408.0
 _TSL2591_LUX_COEFB           = 1.64
 _TSL2591_LUX_COEFC           = 0.59
 _TSL2591_LUX_COEFD           = 0.86
+_TSL2591_MAX_COUNT_100MS     = const(36863)
+_TSL2591_MAX_COUNT           = const(0xFFFF)
 
 # User-facing constants:
 GAIN_LOW                  = 0x00  # low gain (1x)
@@ -249,18 +251,20 @@ class TSL2591:
         """
         channel_0, channel_1 = self.raw_luminosity
         
+        # Compute the atime in milliseconds
+        atime = 100.0 * self._integration_time + 100.0
+        
         # Set the maximum sensor counts based on the atime setting
         if 100 == atime:
-            maxCounts = 36863
+            maxCounts = _TSL2591_MAX_COUNT_100MS
         else:
-            maxCounts = 0xFFFF
+            maxCounts = _TSL2591_MAX_COUNT
         
         # Handle overflow.
         if channel_0 == maxCounts or channel_1 == maxCounts:
             raise RuntimeError('Overflow reading light channels!')
         # Calculate lux using same equation as Arduino library:
         #  https://github.com/adafruit/Adafruit_TSL2591_Library/blob/master/Adafruit_TSL2591.cpp
-        atime = 100.0 * self._integration_time + 100.0
         again = 1.0
         if self._gain == GAIN_MED:
             again = 25.0
