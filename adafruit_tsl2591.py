@@ -261,7 +261,7 @@ class TSL2591:
             maxCounts = _TSL2591_MAX_COUNT
         
         # Handle overflow.
-        if channel_0 == maxCounts or channel_1 == maxCounts:
+        if channel_0 >= maxCounts or channel_1 >= maxCounts:
             raise RuntimeError('Overflow reading light channels!')
         # Calculate lux using same equation as Arduino library:
         #  https://github.com/adafruit/Adafruit_TSL2591_Library/blob/master/Adafruit_TSL2591.cpp
