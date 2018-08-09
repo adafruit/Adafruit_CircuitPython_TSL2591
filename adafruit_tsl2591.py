@@ -248,8 +248,15 @@ class TSL2591:
         and visible light channels.
         """
         channel_0, channel_1 = self.raw_luminosity
+        
+        # Set the maximum sensor counts based on the atime setting
+        if 100 == atime:
+            maxCounts = 36863
+        else:
+            maxCounts = 0xFFFF
+        
         # Handle overflow.
-        if channel_0 == 0xFFFF or channel_1 == 0xFFFF:
+        if channel_0 == maxCounts or channel_1 == maxCounts:
             raise RuntimeError('Overflow reading light channels!')
         # Calculate lux using same equation as Arduino library:
         #  https://github.com/adafruit/Adafruit_TSL2591_Library/blob/master/Adafruit_TSL2591.cpp
