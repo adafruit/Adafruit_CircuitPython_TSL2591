@@ -254,8 +254,8 @@ class TSL2591:
         # Compute the atime in milliseconds
         atime = 100.0 * self._integration_time + 100.0
 
-        # Set the maximum sensor counts based on the atime setting
-        if atime == 100:
+        # Set the maximum sensor counts based on the integration time (atime) setting
+        if self._integration_time == INTEGRATIONTIME_100MS:
             max_counts = _TSL2591_MAX_COUNT_100MS
         else:
             max_counts = _TSL2591_MAX_COUNT
