@@ -70,7 +70,7 @@ _TSL2591_LUX_COEFB           = 1.64
 _TSL2591_LUX_COEFC           = 0.59
 _TSL2591_LUX_COEFD           = 0.86
 _TSL2591_MAX_COUNT_100MS     = const(36863)
-_TSL2591_MAX_COUNT           = const(0xFFFF)
+_TSL2591_MAX_COUNT           = const(65535)
 
 # User-facing constants:
 GAIN_LOW                  = 0x00  # low gain (1x)
