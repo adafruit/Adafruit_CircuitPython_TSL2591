@@ -125,8 +125,7 @@ class TSL2591:
         with self._device as i2c:
             # Make sure to add command bit to read request.
             self._BUFFER[0] = (_TSL2591_COMMAND_BIT | address) & 0xFF
-            i2c.write(self._BUFFER, end=1, stop=False)
-            i2c.readinto(self._BUFFER, end=1)
+            i2c.write_then_readinto(self._BUFFER, self._BUFFER, out_end=1, in_end=1)
         return self._BUFFER[0]
 
     # Disable invalid name check since pylint isn't smart enough to know LE
@@ -138,8 +137,7 @@ class TSL2591:
         with self._device as i2c:
             # Make sure to add command bit to read request.
             self._BUFFER[0] = (_TSL2591_COMMAND_BIT | address) & 0xFF
-            i2c.write(self._BUFFER, end=1, stop=False)
-            i2c.readinto(self._BUFFER, end=2)
+            i2c.write_then_readinto(self._BUFFER, self._BUFFER, out_end=1, in_end=2)
         return (self._BUFFER[1] << 8) | self._BUFFER[0]
     #pylint: enable=invalid-name
 
