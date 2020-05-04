@@ -250,7 +250,7 @@ class TSL2591:
     @property
     def lux(self):
         """Read the sensor and calculate a lux value from both its infrared
-        and visible light channels.
+        and visible light channels. Note: ``lux`` is not calibrated!
         """
         channel_0, channel_1 = self.raw_luminosity
 
