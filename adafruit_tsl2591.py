@@ -51,7 +51,6 @@ __version__ = "0.0.0-auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_TSL2591.git"
 
 
-# pylint: disable=bad-whitespace
 # Internal constants:
 _TSL2591_ADDR = const(0x29)
 _TSL2591_COMMAND_BIT = const(0xA0)
@@ -93,7 +92,6 @@ INTEGRATIONTIME_500MS = 0x04  # 500 millis
 """500 millis"""
 INTEGRATIONTIME_600MS = 0x05  # 600 millis
 """600 millis"""
-# pylint: enable=bad-whitespace
 
 
 class TSL2591:
