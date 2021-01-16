@@ -1,24 +1,7 @@
-# The MIT License (MIT)
+# SPDX-FileCopyrightText: 2017 Tony DiCola for Adafruit Industries
 #
-# Copyright (c) 2017 Tony DiCola for Adafruit Industries
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# SPDX-License-Identifier: MIT
+
 """
 `adafruit_tsl2591`
 ====================================================
@@ -96,9 +79,9 @@ INTEGRATIONTIME_600MS = 0x05  # 600 millis
 
 class TSL2591:
     """TSL2591 high precision light sensor.
-        :param busio.I2C i2c: The I2C bus connected to the sensor
-        :param int address: The I2C address of the sensor.  If not specified
-        the sensor default will be used.
+    :param busio.I2C i2c: The I2C bus connected to the sensor
+    :param int address: The I2C address of the sensor.  If not specified
+    the sensor default will be used.
     """
 
     # Class-level buffer to reduce memory usage and allocations.
@@ -232,15 +215,13 @@ class TSL2591:
 
     @property
     def infrared(self):
-        """Read the infrared light and return its value as a 16-bit unsigned number.
-        """
+        """Read the infrared light and return its value as a 16-bit unsigned number."""
         _, channel_1 = self.raw_luminosity
         return channel_1
 
     @property
     def visible(self):
-        """Read the visible light and return its value as a 32-bit unsigned number.
-        """
+        """Read the visible light and return its value as a 32-bit unsigned number."""
         channel_0, channel_1 = self.raw_luminosity
         full = (channel_1 << 16) | channel_0
         return full - channel_1
