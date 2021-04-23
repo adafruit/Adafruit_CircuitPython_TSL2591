@@ -244,7 +244,11 @@ class TSL2591:
 
         # Handle overflow.
         if channel_0 >= max_counts or channel_1 >= max_counts:
-            raise RuntimeError("Overflow reading light channels!")
+            message = (
+                "Overflow reading light channels!, Try to reduce the gain of\n "
+                + "the sensor using adafruit_tsl2591.GAIN_LOW"
+            )
+            raise RuntimeError(message)
         # Calculate lux using same equation as Arduino library:
         #  https://github.com/adafruit/Adafruit_TSL2591_Library/blob/master/Adafruit_TSL2591.cpp
         again = 1.0
