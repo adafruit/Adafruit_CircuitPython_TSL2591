@@ -21,9 +21,10 @@ Implementation Notes
 
 **Software and Dependencies:**
 
-* Adafruit CircuitPython firmware for the ESP8622 and M0-based boards:
-  https://github.com/adafruit/circuitpython/releases
-* Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
+* Adafruit CircuitPython firmware for the supported boards:
+  https://circuitpython.org/downloads
+
+ * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
 from micropython import const
 
@@ -79,9 +80,38 @@ INTEGRATIONTIME_600MS = 0x05  # 600 millis
 
 class TSL2591:
     """TSL2591 high precision light sensor.
-    :param busio.I2C i2c: The I2C bus connected to the sensor
-    :param int address: The I2C address of the sensor.  If not specified
-    the sensor default will be used.
+
+    :param ~busio.I2C i2c: The I2C bus the device is connected to
+    :param int address: The I2C device address. Defaults to :const:`0x29`
+
+
+    **Quickstart: Importing and using the device**
+
+        Here is an example of using the :class:`TSL2591` class.
+        First you will need to import the libraries to use the sensor
+
+        .. code-block:: python
+
+            import board
+            import adafruit_tsl2591
+
+        Once this is done you can define your `board.I2C` object and define your sensor object
+
+        .. code-block:: python
+
+            i2c = board.I2C()  # uses board.SCL and board.SDA
+            sensor = adafruit_tsl2591.TSL2591(i2c)
+
+        Now you have access to the :attr:`lux`, :attr:`infrared`
+        :attr:`visible` and :attr:`full_spectrum` attributes
+
+        .. code-block:: python
+
+            lux = sensor.lux
+            infrared = sensor.infrared
+            visible = sensor.visible
+            full_spectrum = sensor.full_spectrum
+
     """
 
     # Class-level buffer to reduce memory usage and allocations.
@@ -229,7 +259,11 @@ class TSL2591:
     @property
     def lux(self):
         """Read the sensor and calculate a lux value from both its infrared
-        and visible light channels. Note: ``lux`` is not calibrated!
+        and visible light channels.
+
+        .. note::
+            :attr:`lux` is not calibrated!
+
         """
         channel_0, channel_1 = self.raw_luminosity
 

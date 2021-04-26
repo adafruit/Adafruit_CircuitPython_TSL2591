@@ -23,6 +23,8 @@ Table of Contents
 .. toctree::
     :caption: Tutorials
 
+    Adafruit TSL2591 High Dynamic Range Digital Light Sensor Learning Guide <https://learn.adafruit.com/adafruit-tsl2591>
+
 .. toctree::
     :caption: Related Products
 
