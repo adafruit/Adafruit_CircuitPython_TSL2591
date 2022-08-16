@@ -12,7 +12,7 @@ requires = [
 [project]
 name = "adafruit-circuitpython-tsl2591"
 description = "CircuitPython library for TSL2591 high precision light sensor."
-version = "0.0.0-auto.0"
+version = "0.0.0+auto.0"
 readme = "README.rst"
 authors = [
     {name = "Adafruit Industries", email = "circuitpython@adafruit.com"}
