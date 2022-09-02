@@ -30,6 +30,11 @@ from micropython import const
 
 from adafruit_bus_device import i2c_device
 
+try:
+    from typing import Tuple
+    from busio import I2C
+except ImportError:
+    pass
 
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_TSL2591.git"
@@ -118,7 +123,7 @@ class TSL2591:
     # Note this is NOT thread-safe or re-entrant by design.
     _BUFFER = bytearray(2)
 
-    def __init__(self, i2c, address=_TSL2591_ADDR):
+    def __init__(self, i2c: I2C, address: int = _TSL2591_ADDR) -> None:
         self._integration_time = 0
         self._gain = 0
         self._device = i2c_device.I2CDevice(i2c, address)
@@ -131,7 +136,7 @@ class TSL2591:
         # Put the device in a powered on state after initialization.
         self.enable()
 
-    def _read_u8(self, address):
+    def _read_u8(self, address: int) -> int:
         # Read an 8-bit unsigned value from the specified 8-bit address.
         with self._device as i2c:
             # Make sure to add command bit to read request.
@@ -142,7 +147,7 @@ class TSL2591:
     # Disable invalid name check since pylint isn't smart enough to know LE
     # is an abbreviation for little-endian.
     # pylint: disable=invalid-name
-    def _read_u16LE(self, address):
+    def _read_u16LE(self, address: int) -> int:
         # Read a 16-bit little-endian unsigned value from the specified 8-bit
         # address.
         with self._device as i2c:
@@ -153,7 +158,7 @@ class TSL2591:
 
     # pylint: enable=invalid-name
 
-    def _write_u8(self, address, val):
+    def _write_u8(self, address: int, val: int) -> None:
         # Write an 8-bit unsigned value to the specified 8-bit address.
         with self._device as i2c:
             # Make sure to add command bit to write request.
@@ -161,7 +166,7 @@ class TSL2591:
             self._BUFFER[1] = val & 0xFF
             i2c.write(self._BUFFER, end=2)
 
-    def enable(self):
+    def enable(self) -> None:
         """Put the device in a fully powered enabled mode."""
         self._write_u8(
             _TSL2591_REGISTER_ENABLE,
@@ -171,12 +176,12 @@ class TSL2591:
             | _TSL2591_ENABLE_NPIEN,
         )
 
-    def disable(self):
+    def disable(self) -> None:
         """Disable the device and go into low power mode."""
         self._write_u8(_TSL2591_REGISTER_ENABLE, _TSL2591_ENABLE_POWEROFF)
 
     @property
-    def gain(self):
+    def gain(self) -> int:
         """Get and set the gain of the sensor.  Can be a value of:
 
         - ``GAIN_LOW`` (1x)
@@ -188,7 +193,7 @@ class TSL2591:
         return control & 0b00110000
 
     @gain.setter
-    def gain(self, val):
+    def gain(self, val: int) -> None:
         assert val in (GAIN_LOW, GAIN_MED, GAIN_HIGH, GAIN_MAX)
         # Set appropriate gain value.
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
@@ -199,7 +204,7 @@ class TSL2591:
         self._gain = val
 
     @property
-    def integration_time(self):
+    def integration_time(self) -> int:
         """Get and set the integration time of the sensor.  Can be a value of:
 
         - ``INTEGRATIONTIME_100MS`` (100 millis)
@@ -213,7 +218,7 @@ class TSL2591:
         return control & 0b00000111
 
     @integration_time.setter
-    def integration_time(self, val):
+    def integration_time(self, val: int) -> None:
         assert 0 <= val <= 5
         # Set control bits appropriately.
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
@@ -224,7 +229,7 @@ class TSL2591:
         self._integration_time = val
 
     @property
-    def raw_luminosity(self):
+    def raw_luminosity(self) -> Tuple[int, int]:
         """Read the raw luminosity from the sensor (both IR + visible and IR
         only channels) and return a 2-tuple of those values.  The first value
         is IR + visible luminosity (channel 0) and the second is the IR only
@@ -236,7 +241,7 @@ class TSL2591:
         return (channel_0, channel_1)
 
     @property
-    def full_spectrum(self):
+    def full_spectrum(self) -> int:
         """Read the full spectrum (IR + visible) light and return its value
         as a 32-bit unsigned number.
         """
@@ -244,20 +249,20 @@ class TSL2591:
         return (channel_1 << 16) | channel_0
 
     @property
-    def infrared(self):
+    def infrared(self) -> int:
         """Read the infrared light and return its value as a 16-bit unsigned number."""
         _, channel_1 = self.raw_luminosity
         return channel_1
 
     @property
-    def visible(self):
+    def visible(self) -> int:
         """Read the visible light and return its value as a 32-bit unsigned number."""
         channel_0, channel_1 = self.raw_luminosity
         full = (channel_1 << 16) | channel_0
         return full - channel_1
 
     @property
-    def lux(self):
+    def lux(self) -> float:
         """Read the sensor and calculate a lux value from both its infrared
         and visible light channels.
 
