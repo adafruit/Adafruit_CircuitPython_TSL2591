@@ -192,8 +192,7 @@ class TSL2591:
         """Put the device in a powered, enabled mode."""
         self._write_u8(
             _TSL2591_REGISTER_ENABLE,
-            _TSL2591_ENABLE_POWERON
-            | _TSL2591_ENABLE_AEN,
+            _TSL2591_ENABLE_POWERON | _TSL2591_ENABLE_AEN,
         )
 
     def disable(self) -> None:
@@ -207,9 +206,10 @@ class TSL2591:
         - ``CLEAR_ALL_INTERRUPTS``
         - ``CLEAR_PERSIST_INTERRUPT``
         """
-        assert operation in (CLEAR_INTERRUPT,
-                             CLEAR_ALL_INTERRUPTS,
-                             CLEAR_PERSIST_INTERRUPT,
+        assert operation in (
+            CLEAR_INTERRUPT,
+            CLEAR_ALL_INTERRUPTS,
+            CLEAR_PERSIST_INTERRUPT,
         )
         control = (_TSL2591_SPECIAL_BIT | operation) & 0xFF
         with self._device as i2c:
