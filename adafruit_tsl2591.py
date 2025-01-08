@@ -302,9 +302,9 @@ class TSL2591:
         return th_low
 
     @threshold_low.setter
-    def threshold_low(self, value: int) -> None:
-        lower = value & 0xFF
-        upper = (value >> 8) & 0xFF
+    def threshold_low(self, val: int) -> None:
+        lower = val & 0xFF
+        upper = (val >> 8) & 0xFF
         self._write_u8(_TSL2591_AILTL, lower)
         self._write_u8(_TSL2591_AILTH, upper)
 
@@ -317,9 +317,9 @@ class TSL2591:
         return th_high
 
     @threshold_high.setter
-    def threshold_high(self, value: int) -> None:
-        lower = value & 0xFF
-        upper = (value >> 8) & 0xFF
+    def threshold_high(self, val: int) -> None:
+        lower = val & 0xFF
+        upper = (val >> 8) & 0xFF
         self._write_u8(_TSL2591_AIHTL, lower)
         self._write_u8(_TSL2591_AIHTH, upper)
 
@@ -332,9 +332,9 @@ class TSL2591:
         return np_th_low
 
     @nopersist_threshold_low.setter
-    def nopersist_threshold_low(self, value: int) -> None:
-        lower = value & 0xFF
-        upper = (value >> 8) & 0xFF
+    def nopersist_threshold_low(self, val: int) -> None:
+        lower = val & 0xFF
+        upper = (val >> 8) & 0xFF
         self._write_u8(_TSL2591_NPAILTL, lower)
         self._write_u8(_TSL2591_NPAILTH, upper)
 
@@ -347,22 +347,43 @@ class TSL2591:
         return np_th_high
 
     @nopersist_threshold_high.setter
-    def nopersist_threshold_high(self, value: int) -> None:
-        lower = value & 0xFF
-        upper = (value >> 8) & 0xFF
+    def nopersist_threshold_high(self, val: int) -> None:
+        lower = val & 0xFF
+        upper = (val >> 8) & 0xFF
         self._write_u8(_TSL2591_NPAIHTL, lower)
         self._write_u8(_TSL2591_NPAIHTH, upper)
 
     @property
     def persist(self) -> int:
         """Get and set the interrupt persist filter - the number of consecutive out-of-range
-        ALS cycles necessary to generate an interrupt."""
+        ALS cycles necessary to generate an interrupt. Valid persist values are 0 - 15 (inclusive),
+        corresponding to a preset number of cycles. Only the 4 lower bits will be used to write
+        to the device.
+        Can be a value of:
+        - ``0 (0000)`` - Every ALS cycle generates an interrupt.
+        - ``1 (0001)`` - Any value outside of threshold range.
+        - ``2 (0010)`` - 2 consecutive values out of range.
+        - ``3 (0011)`` - 3 consecutive values out of range.
+        - ``4 (0100)`` - 5 consecutive values out of range.
+        - ``5 (0101)`` - 10 consecutive values out of range.
+        - ``6 (0110)`` - 15 consecutive values out of range.
+        - ``7 (0111)`` - 20 consecutive values out of range.
+        - ``8 (1000)`` - 25 consecutive values out of range.
+        - ``9 (1001)`` - 30 consecutive values out of range.
+        - ``10 (1010)`` - 35 consecutive values out of range.
+        - ``11 (1011)`` - 40 consecutive values out of range.
+        - ``12 (1100)`` - 45 consecutive values out of range.
+        - ``13 (1101)`` - 50 consecutive values out of range.
+        - ``14 (1110)`` - 55 consecutive values out of range.
+        - ``15 (1111)`` - 60 consecutive values out of range.
+        """
         persist = self._read_u8(_TSL2591_PERSIST_FILTER)
         return persist & 0x0F
 
     @persist.setter
-    def persist(self, value: int) -> None:
-        persist = value & 0x0F
+    def persist(self, val: int) -> None:
+        assert 0 <= val <= 15
+        persist = val & 0x0F
         self._write_u8(_TSL2591_PERSIST_FILTER, persist)
 
     @property
