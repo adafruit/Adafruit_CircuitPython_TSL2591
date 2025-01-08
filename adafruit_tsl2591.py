@@ -218,9 +218,11 @@ class TSL2591:
 
     def enable_interrupt(self, interrupts: int) -> None:
         """Enable interrupts on device. ENABLE_NPIEN will turn on No Persist interrupts, these
-        bypass the persist filter and assert immediately. ENABLE_AIEN will assert after their
-        threshold values have exceeded the persist filter cycle constraints. The device powers
-        on with thresholds at 0, meaning enabling interrupts may cause an immediate assertion.
+        bypass the persist filter and assert immediately when values are detected above the high
+        threshold or below the low threshold. Similarly, ENABLE_AIEN will assert at the respective
+        ALS thresholds, but only after the values persist longer than the persist filter cycle
+        duration. The device powers on with thresholds at 0, meaning enabling interrupts may
+        cause an immediate assertion.
         Can be a value of:
         - ``ENABLE_NPIEN``
         - ``ENABLE_AIEN``
@@ -293,8 +295,8 @@ class TSL2591:
 
     @property
     def threshold_low(self) -> int:
-        """Get and set the ALS interrupt low threshold bytes. If the detected value exceeds
-        threshold for the number of persist cycles an interrupt will be triggered.
+        """Get and set the ALS interrupt low threshold bytes. If the detected value is below
+        the low threshold for the number of persist filter cycles an interrupt will be triggered.
         Can be 16-bit value."""
         th_low = self._read_u16LE(_TSL2591_AILTL)
         return th_low
@@ -308,8 +310,8 @@ class TSL2591:
 
     @property
     def threshold_high(self) -> int:
-        """Get and set the ALS interrupt high threshold bytes. If the detected value exceeds
-        threshold for the number of persist cycles an interrupt will be triggered.
+        """Get and set the ALS interrupt high threshold bytes. If the detected value is above
+        the high threshold for the number of persist filter cycles an interrupt will be triggered.
         Can be 16-bit value."""
         th_high = self._read_u16LE(_TSL2591_AIHTL)
         return th_high
@@ -324,7 +326,8 @@ class TSL2591:
     @property
     def nopersist_threshold_low(self) -> int:
         """Get and set the No Persist ALS low threshold bytes. An interrupt will be triggered
-        immediately once threshold is exceeded. Can be 16-bit value."""
+        immediately once the detected value is below the low threshold. Can be 16-bit value.
+        """
         np_th_low = self._read_u16LE(_TSL2591_NPAILTL)
         return np_th_low
 
@@ -338,7 +341,8 @@ class TSL2591:
     @property
     def nopersist_threshold_high(self) -> int:
         """Get and set the No Persist ALS high threshold bytes. An interrupt will be triggered
-        immediately once theshold is exceeded. Can be 16-bit value."""
+        immediately once the detected value is above the high threshold. Can be 16-bit value.
+        """
         np_th_high = self._read_u16LE(_TSL2591_NPAIHTL)
         return np_th_high
 
@@ -351,7 +355,7 @@ class TSL2591:
 
     @property
     def persist(self) -> int:
-        """Get and set the interrupt persistence filter - the number of consecutive out-of-range
+        """Get and set the interrupt persist filter - the number of consecutive out-of-range
         ALS cycles necessary to generate an interrupt."""
         persist = self._read_u8(_TSL2591_PERSIST_FILTER)
         return persist & 0x0F
