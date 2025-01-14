@@ -39,17 +39,27 @@ except ImportError:
 __version__ = "0.0.0+auto.0"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_TSL2591.git"
 
-
 # Internal constants:
 _TSL2591_ADDR = const(0x29)
 _TSL2591_COMMAND_BIT = const(0xA0)
+_TSL2591_SPECIAL_BIT = const(0xE0)
 _TSL2591_ENABLE_POWEROFF = const(0x00)
 _TSL2591_ENABLE_POWERON = const(0x01)
 _TSL2591_ENABLE_AEN = const(0x02)
-_TSL2591_ENABLE_AIEN = const(0x10)
-_TSL2591_ENABLE_NPIEN = const(0x80)
+
 _TSL2591_REGISTER_ENABLE = const(0x00)
 _TSL2591_REGISTER_CONTROL = const(0x01)
+
+_TSL2591_AILTL = const(0x04)
+_TSL2591_AILTH = const(0x05)
+_TSL2591_AIHTL = const(0x06)
+_TSL2591_AIHTH = const(0x07)
+_TSL2591_NPAILTL = const(0x08)
+_TSL2591_NPAILTH = const(0x09)
+_TSL2591_NPAIHTL = const(0x0A)
+_TSL2591_NPAIHTH = const(0x0B)
+_TSL2591_PERSIST_FILTER = const(0x0C)
+
 _TSL2591_REGISTER_DEVICE_ID = const(0x12)
 _TSL2591_REGISTER_CHAN0_LOW = const(0x14)
 _TSL2591_REGISTER_CHAN1_LOW = const(0x16)
@@ -81,6 +91,18 @@ INTEGRATIONTIME_500MS = 0x04  # 500 millis
 """500 millis"""
 INTEGRATIONTIME_600MS = 0x05  # 600 millis
 """600 millis"""
+CLEAR_INTERRUPT = const(0x06)
+"""Clears ALS interrupt"""
+CLEAR_ALL_INTERRUPTS = const(0x07)
+"""Clears ALS and no persist ALS interrupt"""
+CLEAR_PERSIST_INTERRUPT = const(0x0A)
+"""Clears no persist ALS interrupt"""
+ENABLE_AIEN = const(0x10)
+"""ALS Interrupt Enable. When asserted permits ALS interrupts to be generated."""
+ENABLE_NPIEN = const(0x80)
+"""No Persist Interrupt Enable. When asserted NP Threshold conditions will generate an interrupt."""
+ENABLE_NPAIEN = const(0x10 | 0x80)
+"""ALS and No Persist Interrupt Enable."""
 
 
 class TSL2591:
@@ -167,18 +189,61 @@ class TSL2591:
             i2c.write(self._BUFFER, end=2)
 
     def enable(self) -> None:
-        """Put the device in a fully powered enabled mode."""
+        """Put the device in a powered, enabled mode."""
         self._write_u8(
             _TSL2591_REGISTER_ENABLE,
-            _TSL2591_ENABLE_POWERON
-            | _TSL2591_ENABLE_AEN
-            | _TSL2591_ENABLE_AIEN
-            | _TSL2591_ENABLE_NPIEN,
+            _TSL2591_ENABLE_POWERON | _TSL2591_ENABLE_AEN,
         )
 
     def disable(self) -> None:
         """Disable the device and go into low power mode."""
         self._write_u8(_TSL2591_REGISTER_ENABLE, _TSL2591_ENABLE_POWEROFF)
+
+    def clear_interrupt(self, operation: int) -> None:
+        """Send special function command to control interrupt bits in the status register (0x13).
+        Can be a value of:
+        - ``CLEAR_INTERRUPT``
+        - ``CLEAR_ALL_INTERRUPTS``
+        - ``CLEAR_PERSIST_INTERRUPT``
+        """
+        assert operation in (
+            CLEAR_INTERRUPT,
+            CLEAR_ALL_INTERRUPTS,
+            CLEAR_PERSIST_INTERRUPT,
+        )
+        control = (_TSL2591_SPECIAL_BIT | operation) & 0xFF
+        with self._device as i2c:
+            self._BUFFER[0] = control
+            i2c.write(self._BUFFER, end=1)
+
+    def enable_interrupt(self, interrupts: int) -> None:
+        """Enable interrupts on device. ENABLE_NPIEN will turn on No Persist interrupts, these
+        bypass the persist filter and assert immediately when values are detected above the high
+        threshold or below the low threshold. Similarly, ENABLE_AIEN will assert at the respective
+        ALS thresholds, but only after the values persist longer than the persist filter cycle
+        duration. The device powers on with thresholds at 0, meaning enabling interrupts may
+        cause an immediate assertion.
+        Can be a value of:
+        - ``ENABLE_NPIEN``
+        - ``ENABLE_AIEN``
+        - ``ENABLE_NPAIEN``
+        """
+        assert interrupts in (ENABLE_NPIEN, ENABLE_AIEN, (ENABLE_NPIEN | ENABLE_AIEN))
+        functions = self._read_u8(_TSL2591_REGISTER_ENABLE)
+        functions = (functions | interrupts) & 0xFF
+        self._write_u8(_TSL2591_REGISTER_ENABLE, functions)
+
+    def disable_interrupt(self, interrupts: int) -> None:
+        """Disables the requested interrupts.
+        Can be a value of:
+        - ``ENABLE_NPIEN``
+        - ``ENABLE_AIEN``
+        - ``ENABLE_NPAIEN``
+        """
+        assert interrupts in (ENABLE_NPIEN, ENABLE_AIEN, (ENABLE_NPIEN | ENABLE_AIEN))
+        functions = self._read_u8(_TSL2591_REGISTER_ENABLE)
+        functions = (functions & ~interrupts) & 0xFF
+        self._write_u8(_TSL2591_REGISTER_ENABLE, functions)
 
     @property
     def gain(self) -> int:
@@ -227,6 +292,99 @@ class TSL2591:
         self._write_u8(_TSL2591_REGISTER_CONTROL, control)
         # Keep track of integration time for future reading delay times.
         self._integration_time = val
+
+    @property
+    def threshold_low(self) -> int:
+        """Get and set the ALS interrupt low threshold bytes. If the detected value is below
+        the low threshold for the number of persist filter cycles an interrupt will be triggered.
+        Can be 16-bit value."""
+        th_low = self._read_u16LE(_TSL2591_AILTL)
+        return th_low
+
+    @threshold_low.setter
+    def threshold_low(self, val: int) -> None:
+        lower = val & 0xFF
+        upper = (val >> 8) & 0xFF
+        self._write_u8(_TSL2591_AILTL, lower)
+        self._write_u8(_TSL2591_AILTH, upper)
+
+    @property
+    def threshold_high(self) -> int:
+        """Get and set the ALS interrupt high threshold bytes. If the detected value is above
+        the high threshold for the number of persist filter cycles an interrupt will be triggered.
+        Can be 16-bit value."""
+        th_high = self._read_u16LE(_TSL2591_AIHTL)
+        return th_high
+
+    @threshold_high.setter
+    def threshold_high(self, val: int) -> None:
+        lower = val & 0xFF
+        upper = (val >> 8) & 0xFF
+        self._write_u8(_TSL2591_AIHTL, lower)
+        self._write_u8(_TSL2591_AIHTH, upper)
+
+    @property
+    def nopersist_threshold_low(self) -> int:
+        """Get and set the No Persist ALS low threshold bytes. An interrupt will be triggered
+        immediately once the detected value is below the low threshold. Can be 16-bit value.
+        """
+        np_th_low = self._read_u16LE(_TSL2591_NPAILTL)
+        return np_th_low
+
+    @nopersist_threshold_low.setter
+    def nopersist_threshold_low(self, val: int) -> None:
+        lower = val & 0xFF
+        upper = (val >> 8) & 0xFF
+        self._write_u8(_TSL2591_NPAILTL, lower)
+        self._write_u8(_TSL2591_NPAILTH, upper)
+
+    @property
+    def nopersist_threshold_high(self) -> int:
+        """Get and set the No Persist ALS high threshold bytes. An interrupt will be triggered
+        immediately once the detected value is above the high threshold. Can be 16-bit value.
+        """
+        np_th_high = self._read_u16LE(_TSL2591_NPAIHTL)
+        return np_th_high
+
+    @nopersist_threshold_high.setter
+    def nopersist_threshold_high(self, val: int) -> None:
+        lower = val & 0xFF
+        upper = (val >> 8) & 0xFF
+        self._write_u8(_TSL2591_NPAIHTL, lower)
+        self._write_u8(_TSL2591_NPAIHTH, upper)
+
+    @property
+    def persist(self) -> int:
+        """Get and set the interrupt persist filter - the number of consecutive out-of-range
+        ALS cycles necessary to generate an interrupt. Valid persist values are 0 - 15 (inclusive),
+        corresponding to a preset number of cycles. Only the 4 lower bits will be used to write
+        to the device.
+        Can be a value of:
+        - ``0 (0000)`` - Every ALS cycle generates an interrupt.
+        - ``1 (0001)`` - Any value outside of threshold range.
+        - ``2 (0010)`` - 2 consecutive values out of range.
+        - ``3 (0011)`` - 3 consecutive values out of range.
+        - ``4 (0100)`` - 5 consecutive values out of range.
+        - ``5 (0101)`` - 10 consecutive values out of range.
+        - ``6 (0110)`` - 15 consecutive values out of range.
+        - ``7 (0111)`` - 20 consecutive values out of range.
+        - ``8 (1000)`` - 25 consecutive values out of range.
+        - ``9 (1001)`` - 30 consecutive values out of range.
+        - ``10 (1010)`` - 35 consecutive values out of range.
+        - ``11 (1011)`` - 40 consecutive values out of range.
+        - ``12 (1100)`` - 45 consecutive values out of range.
+        - ``13 (1101)`` - 50 consecutive values out of range.
+        - ``14 (1110)`` - 55 consecutive values out of range.
+        - ``15 (1111)`` - 60 consecutive values out of range.
+        """
+        persist = self._read_u8(_TSL2591_PERSIST_FILTER)
+        return persist & 0x0F
+
+    @persist.setter
+    def persist(self, val: int) -> None:
+        assert 0 <= val <= 15
+        persist = val & 0x0F
+        self._write_u8(_TSL2591_PERSIST_FILTER, persist)
 
     @property
     def raw_luminosity(self) -> Tuple[int, int]:
