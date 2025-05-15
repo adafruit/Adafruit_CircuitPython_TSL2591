@@ -4,7 +4,9 @@
 # Simple demo of the TSL2591 sensor.  Will print the detected light value
 # every second.
 import time
+
 import board
+
 import adafruit_tsl2591
 
 # Create sensor object, communicating over the board's default I2C bus
@@ -30,17 +32,17 @@ sensor = adafruit_tsl2591.TSL2591(i2c)
 while True:
     # Read and calculate the light level in lux.
     lux = sensor.lux
-    print("Total light: {0}lux".format(lux))
+    print(f"Total light: {lux}lux")
     # You can also read the raw infrared and visible light levels.
     # These are unsigned, the higher the number the more light of that type.
     # There are no units like lux.
     # Infrared levels range from 0-65535 (16-bit)
     infrared = sensor.infrared
-    print("Infrared light: {0}".format(infrared))
+    print(f"Infrared light: {infrared}")
     # Visible-only levels range from 0-2147483647 (32-bit)
     visible = sensor.visible
-    print("Visible light: {0}".format(visible))
+    print(f"Visible light: {visible}")
     # Full spectrum (visible + IR) also range from 0-2147483647 (32-bit)
     full_spectrum = sensor.full_spectrum
-    print("Full spectrum (IR + visible) light: {0}".format(full_spectrum))
+    print(f"Full spectrum (IR + visible) light: {full_spectrum}")
     time.sleep(1.0)
