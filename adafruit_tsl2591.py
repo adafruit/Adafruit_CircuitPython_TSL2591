@@ -26,12 +26,13 @@ Implementation Notes
 
  * Adafruit's Bus Device library: https://github.com/adafruit/Adafruit_CircuitPython_BusDevice
 """
-from micropython import const
 
 from adafruit_bus_device import i2c_device
+from micropython import const
 
 try:
     from typing import Tuple
+
     from busio import I2C
 except ImportError:
     pass
@@ -166,9 +167,6 @@ class TSL2591:
             i2c.write_then_readinto(self._BUFFER, self._BUFFER, out_end=1, in_end=1)
         return self._BUFFER[0]
 
-    # Disable invalid name check since pylint isn't smart enough to know LE
-    # is an abbreviation for little-endian.
-    # pylint: disable=invalid-name
     def _read_u16LE(self, address: int) -> int:
         # Read a 16-bit little-endian unsigned value from the specified 8-bit
         # address.
@@ -177,8 +175,6 @@ class TSL2591:
             self._BUFFER[0] = (_TSL2591_COMMAND_BIT | address) & 0xFF
             i2c.write_then_readinto(self._BUFFER, self._BUFFER, out_end=1, in_end=2)
         return (self._BUFFER[1] << 8) | self._BUFFER[0]
-
-    # pylint: enable=invalid-name
 
     def _write_u8(self, address: int, val: int) -> None:
         # Write an 8-bit unsigned value to the specified 8-bit address.
@@ -206,11 +202,11 @@ class TSL2591:
         - ``CLEAR_ALL_INTERRUPTS``
         - ``CLEAR_PERSIST_INTERRUPT``
         """
-        assert operation in (
+        assert operation in {
             CLEAR_INTERRUPT,
             CLEAR_ALL_INTERRUPTS,
             CLEAR_PERSIST_INTERRUPT,
-        )
+        }
         control = (_TSL2591_SPECIAL_BIT | operation) & 0xFF
         with self._device as i2c:
             self._BUFFER[0] = control
@@ -228,7 +224,7 @@ class TSL2591:
         - ``ENABLE_AIEN``
         - ``ENABLE_NPAIEN``
         """
-        assert interrupts in (ENABLE_NPIEN, ENABLE_AIEN, (ENABLE_NPIEN | ENABLE_AIEN))
+        assert interrupts in {ENABLE_NPIEN, ENABLE_AIEN, (ENABLE_NPIEN | ENABLE_AIEN)}
         functions = self._read_u8(_TSL2591_REGISTER_ENABLE)
         functions = (functions | interrupts) & 0xFF
         self._write_u8(_TSL2591_REGISTER_ENABLE, functions)
@@ -240,7 +236,7 @@ class TSL2591:
         - ``ENABLE_AIEN``
         - ``ENABLE_NPAIEN``
         """
-        assert interrupts in (ENABLE_NPIEN, ENABLE_AIEN, (ENABLE_NPIEN | ENABLE_AIEN))
+        assert interrupts in {ENABLE_NPIEN, ENABLE_AIEN, (ENABLE_NPIEN | ENABLE_AIEN)}
         functions = self._read_u8(_TSL2591_REGISTER_ENABLE)
         functions = (functions & ~interrupts) & 0xFF
         self._write_u8(_TSL2591_REGISTER_ENABLE, functions)
@@ -259,7 +255,7 @@ class TSL2591:
 
     @gain.setter
     def gain(self, val: int) -> None:
-        assert val in (GAIN_LOW, GAIN_MED, GAIN_HIGH, GAIN_MAX)
+        assert val in {GAIN_LOW, GAIN_MED, GAIN_HIGH, GAIN_MAX}
         # Set appropriate gain value.
         control = self._read_u8(_TSL2591_REGISTER_CONTROL)
         control &= 0b11001111
@@ -457,7 +453,5 @@ class TSL2591:
             again = 9876.0
         cpl = (atime * again) / _TSL2591_LUX_DF
         lux1 = (channel_0 - (_TSL2591_LUX_COEFB * channel_1)) / cpl
-        lux2 = (
-            (_TSL2591_LUX_COEFC * channel_0) - (_TSL2591_LUX_COEFD * channel_1)
-        ) / cpl
+        lux2 = ((_TSL2591_LUX_COEFC * channel_0) - (_TSL2591_LUX_COEFD * channel_1)) / cpl
         return max(lux1, lux2)
