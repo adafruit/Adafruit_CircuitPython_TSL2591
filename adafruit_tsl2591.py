@@ -397,10 +397,10 @@ class TSL2591:
     @property
     def full_spectrum(self) -> int:
         """Read the full spectrum (IR + visible) light and return its value
-        as a 32-bit unsigned number.
+        as a 16-bit unsigned number.
         """
-        channel_0, channel_1 = self.raw_luminosity
-        return (channel_1 << 16) | channel_0
+        channel_0, _ = self.raw_luminosity
+        return channel_0
 
     @property
     def infrared(self) -> int:
@@ -410,9 +410,9 @@ class TSL2591:
 
     @property
     def visible(self) -> int:
-        """Read the visible light and return its value as a 32-bit unsigned number."""
+        """Read the visible light and return its value as a 16-bit unsigned number."""
         channel_0, channel_1 = self.raw_luminosity
-        full = (channel_1 << 16) | channel_0
+        full = channel_0
         return full - channel_1
 
     @property
