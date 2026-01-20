@@ -412,8 +412,7 @@ class TSL2591:
     def visible(self) -> int:
         """Read the visible light and return its value as a 16-bit unsigned number."""
         channel_0, channel_1 = self.raw_luminosity
-        full = channel_0
-        return full - channel_1
+        return channel_0 - channel_1
 
     @property
     def lux(self) -> float:
